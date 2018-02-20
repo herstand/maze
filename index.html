@@ -4,6 +4,9 @@
     <meta charset="utf-8">
   <script type="text/javascript" src="loadScripts.js"></script>
   <style type="text/css">
+    * {
+      box-sizing:border-box;
+    }
     #gameboard {
       text-align:center;
     }
@@ -45,11 +48,10 @@
     .mover {
       position:absolute;
       background:#990000;
-      border-radius:100px;
       top:0px;
       left:0px;
       display:inline-block;
-      transition:3  00ms;
+      transition:300ms;
       z-index:1;
     }
 
@@ -69,6 +71,9 @@
     #options button:hover {
       text-decoration:underline;
       cursor:pointer;
+    }
+    #options button:disabled {
+      background:grey;
     }
     #options button:active {
       background:#990000;

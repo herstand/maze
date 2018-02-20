@@ -20,10 +20,7 @@ function main () {
   document.getElementById("size").addEventListener(
     "change",
     (e) => {
-      if (e.target.value % 2 === 0) {
-        e.target.value = parseInt(e.target.value) + 1;
-      }
-      setupPage(parseInt(e.target.value) + 2);
+      setupPage(parseInt(e.target.value));
     }
   );
   setupPage();
@@ -36,7 +33,7 @@ function setupPage(size = document.getElementById("size").value) {
   maze = new Maze(grid, new Position(1,1));
   mover = new Mover(maze);
 
-  cellSideLength = 2400/(mazeSideLength * 4);
+  cellSideLength = Math.floor(2400/(mazeSideLength * 4));
   moverSideLength = Math.floor(cellSideLength * .7);
   if (document.querySelector("#grid table")) {
     document.querySelector("#grid table").remove();
@@ -56,7 +53,7 @@ function setupPage(size = document.getElementById("size").value) {
   10);
 }
 function centeredPosition(el) {
-  return ((cellSideLength / 2) - parseInt(moverSideLength / 2));
+  return parseInt((cellSideLength / 2) - (moverSideLength / 2));
 }
 function createMover() {
   moverEl = document.createElement("span");
