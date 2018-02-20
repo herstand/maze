@@ -1,16 +1,21 @@
 class Maze {
   constructor(grid, startPosition = new Position(0,0)) {
     this.grid = grid;
-    Object.defineProperty(this, "_START_POSITION", {
+    Object.defineProperty(this, "START_POSITION", {
       value : startPosition,
+      writable : false
+    });
+    Object.defineProperty(this, "EXIT_POSITION", {
+      value : Maze.findExit(this.grid),
       writable : false
     });
     Object.seal(this);
   }
 
-  get START_POSITION() {
-    return this._START_POSITION;
+  static findExit(grid) {
+    return grid.find(cols => cols.find(cell => cell === Maze.EXIT));
   }
+
   static is(SPOT1, SPOT2) {
     return +SPOT1 == +SPOT2; // 2 == {valueOf : () => 2}, +{valueOf : () => 2} == +{valueOf : () => 2}
   }
@@ -84,6 +89,12 @@ class Maze {
     } else if (!this.containsPosition(position.peek(Direction.LEFT))) {
       return Direction.LEFT;
     }
+  }
+  //TODO
+  getDirectionsOfExitFrom(position) {
+//     if (Math.abs((this.EXIT_POSITION / 2) - position.y) > Math.abs((this.grid.length / 2) - position.x)) {
+
+//     }
   }
   toString() {
     return this.grid.reduce(

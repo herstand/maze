@@ -70,11 +70,17 @@ class Mover {
     this.findingExit = false;
     Object.defineProperty(this.visited, this.position.toString(), {});
   }
+
+  chooseNextDirection(DIRECTIONS) {
+    var randomIndex = Utilities.weightedRandom(Array(DIRECTIONS.length).fill(1/DIRECTIONS.length));
+
+    return DIRECTIONS[randomIndex];
+  }
   findExitRecursively(DIRECTIONS = Direction.ALL()) {
-    var randomIndex = Math.floor(Math.random() * DIRECTIONS.length);
     if (DIRECTIONS.length > 0) {
-      if (this.canMove(DIRECTIONS[randomIndex])) {
-        this.moveTowardExit(DIRECTIONS[randomIndex]);
+      let DIRECTION = this.chooseNextDirection(DIRECTIONS);
+      if (this.canMove(DIRECTION)) {
+        this.moveTowardExit(DIRECTION);
         if (this.hasFoundExit()) {
           return true;
         } else {
@@ -86,7 +92,7 @@ class Mover {
           }
         }
       }
-      DIRECTIONS.splice(randomIndex, 1);
+      DIRECTIONS.splice(DIRECTIONS.indexOf(DIRECTION), 1);
       return this.findExitRecursively(DIRECTIONS);
     }
   }
