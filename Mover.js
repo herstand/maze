@@ -10,15 +10,33 @@ class Mover {
   set position(position) {
     this._position = position;
   }
-  
+
   hasVisitedPosition(position) {
     return this.visited.hasOwnProperty(position);
   }
   flagPositionAsVisited() {
     return Object.defineProperty(this.visited, this.position.toString(), {});
   }
+  whereIsTouchingExit() {
+    return Direction.ALL().filter(
+      DIRECTION => Maze.is(
+        this.maze.getValueAt(this.position.peek(DIRECTION)), 
+        Maze.EXIT
+      )
+    );
+  }
   hasFoundExit() {
-    return Maze.is(this.maze.getValueAt(this.position), Maze.EXIT);
+    if (Maze.is(this.maze.getValueAt(this.position), Maze.EXIT)) {
+      return true;
+    } else {
+      var DIRECTION = this.whereIsTouchingExit();
+      if (DIRECTION.length) {
+        this.moveTowardExit(DIRECTION[0]);
+        return true;
+      } else {
+        return false;
+      }
+    }
   }
   leaveMaze() {
     console.log(`Found exit at: ${this.position}`);
@@ -51,27 +69,29 @@ class Mover {
     this.visited = {};
     Object.defineProperty(this.visited, this.position.toString(), {});
   }
-
-  findExitPath(DIRECTIONS = Direction.ALL()) {
+  findExitRecursively(DIRECTIONS = Direction.ALL()) {
     var randomIndex = Math.floor(Math.random() * DIRECTIONS.length);
-    if (this.hasFoundExit()) {
-      this.leaveMaze();
-    } else if (DIRECTIONS.length > 0) {
+    if (DIRECTIONS.length > 0) {
       if (this.canMove(DIRECTIONS[randomIndex])) {
         this.moveTowardExit(DIRECTIONS[randomIndex]);
         if (this.hasFoundExit()) {
-          this.leaveMaze();
+          return true;
         } else {
-          this.findExitPath();
+          this.findExitRecursively();
           if (this.hasFoundExit()) {
-            this.leaveMaze();
+            return true;
           } else {
             this.position.undoLastMove();
           }
         }
       }
       DIRECTIONS.splice(randomIndex, 1);
-      this.findExitPath(DIRECTIONS);
+      return this.findExitRecursively(DIRECTIONS);
+    }
+  }
+  findExitPath() {
+    if (this.findExitRecursively()) {
+      this.leaveMaze();
     }
   }
 }

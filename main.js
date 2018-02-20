@@ -1,32 +1,53 @@
-var grid = [[4, 1, 0, 0, 1, 1],
-            [0, 1, 0, 1, 0, 2],
-            [0, 1, 0, 1, 0, 1],
-            [0, 1, 0, 1, 0, 1],
-            [0, 0, 0, 0, 0, 1],
-            [1, 1, 1, 1, 1, 1]];
-var mazeSideLength = 50;
-grid = generateMaze(mazeSideLength, mazeSideLength);
-var maze = new Maze(grid, new Position(1,1));
-var mover = new Mover(maze);
+var mazeSideLength;
+var grid;
+var maze;
+var mover;
 var moverEl;
-var cellSideLength = 2400/(mazeSideLength * 4);
-var moverSideLength = Math.floor(cellSideLength * .7);
+var cellSideLength;
+var moverSideLength;
+var moverEl;
 
 function main () {
-  document.getElementById("grid").appendChild(makeGridEl());
   document.getElementById("animateExitPath").addEventListener(
-    "click", 
+    "click",
     () => {
       resetMoverEl();
       findExitPathAndAnimate()
     }
   );
+  document.getElementById("size").addEventListener(
+    "change",
+    (e) => {
+      if (e.target.value % 2 === 0) {
+        e.target.value = parseInt(e.target.value) + 1;
+      }
+      setupPage(parseInt(e.target.value) + 2);
+    }
+  );
+  setupPage();
+}
+function setupPage(size = 20) {
+  document.getElementById("size").setAttribute("disabled", "true");
+  mazeSideLength = size;
+  grid = generateMaze(mazeSideLength, mazeSideLength);
+  maze = new Maze(grid, new Position(1,1));
+  mover = new Mover(maze);
+  cellSideLength = 2400/(mazeSideLength * 4);
+  moverSideLength = Math.floor(cellSideLength * .7);
+  if (document.querySelector("#grid table")) {
+    document.querySelector("#grid table").remove();
+  }
+  if (moverEl) {
+    moverEl.remove();
+  }
+  document.getElementById("grid").appendChild(makeGridEl());
+  document.getElementById("size").removeAttribute("disabled");
 }
 function centeredPosition(el) {
   return ((cellSideLength / 2) - parseInt(moverSideLength / 2));
 }
 function createMover() {
-  var moverEl = moverEl = document.createElement("span");
+  moverEl = moverEl = document.createElement("span");
   moverEl.classList.add("mover");
   moverEl.style.width = moverSideLength + "px";
   moverEl.style.height = moverSideLength + "px";
@@ -102,12 +123,12 @@ function animateMove(el, DIRECTION) {
 function displayMover() {
   var interval = window.setInterval(() => {
     if (
-      moverEl.style.left !== (mover.position.x * cellSideLength + centeredPosition(moverEl)) + "px" || 
+      moverEl.style.left !== (mover.position.x * cellSideLength + centeredPosition(moverEl)) + "px" ||
       moverEl.style.top !== (mover.position.y * cellSideLength + centeredPosition(moverEl)) + "px"
     ) {
-      [moverEl.style.top, moverEl.style.left] = 
+      [moverEl.style.top, moverEl.style.left] =
         [
-          (mover.position.y * cellSideLength + centeredPosition(moverEl)) + "px", 
+          (mover.position.y * cellSideLength + centeredPosition(moverEl)) + "px",
           (mover.position.x * cellSideLength + centeredPosition(moverEl)) + "px"
         ];
     }
