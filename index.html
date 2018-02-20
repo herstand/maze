@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+  <script type="text/javascript" src="loadScripts.js"></script>
+  <style type="text/css">
+    #gameboard {
+      text-align:center;
+    }
+    #grid {
+      position:relative;
+      display:inline-block;
+      overflow:hidden;
+    }
+    table {
+      font-size:35px;
+      margin: 0 auto;
+      border-collapse:collapse;
+      border:1px solid black;
+      position:relative;
+      padding:0px;
+      margin:0px;
+      z-index:0;
+    }
+    td {
+      background:white;
+      text-align:center;
+      border-color:white;
+      border-style:solid;
+      border-width:0px;
+      padding:0px;
+      margin:0px;
+    }
+    td.wall {
+      background:black;
+    }
+    td.start {
+      background:green;
+    }
+    td.exit {
+      background:green;
+    }
+
+    .mover {
+      position:absolute;
+      background:#990000;
+      border-radius:100px;
+      top:0px;
+      left:0px;
+      display:inline-block;
+      transition:200ms;
+      z-index:1;
+    }
+
+    #animateExitPath {
+      text-align:center;
+      margin:30px 0px;
+    }
+    #animateExitPath button {
+      width:200px;
+      height:50px;
+      font-size:20px;
+      background:red;
+      border-radius:10px;
+      border-color:black;
+      border-width:3px;
+    }
+    #animateExitPath button:hover {
+      text-decoration:underline;
+      cursor:pointer;
+    }
+    #animateExitPath button:active {
+      background:#990000;
+    }
+    #animateExitPath button:focus {
+      outline:none;
+    }
+  </style>
+</head>
+<body>
+<div id="gameboard">
+  <div id="animateExitPath"><button>Animate Exit Path</button></div>
+  <div id="grid"></div>
+</div>
+
+</body>
+</html>
