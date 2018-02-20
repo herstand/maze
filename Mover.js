@@ -20,7 +20,7 @@ class Mover {
   whereIsTouchingExit() {
     return Direction.ALL().filter(
       DIRECTION => Maze.is(
-        this.maze.getValueAt(this.position.peek(DIRECTION)), 
+        this.maze.getValueAt(this.position.peek(DIRECTION)),
         Maze.EXIT
       )
     );
@@ -41,7 +41,7 @@ class Mover {
   leaveMaze() {
     console.log(`Found exit at: ${this.position}`);
     this.exitPosition.imitate(this.position);
-    Object.freeze(this.exitedPosition);
+    Object.freeze(this.exitPosition);
     return true;
   }
   isValidPosition(position) {
@@ -67,6 +67,7 @@ class Mover {
     this.position = this.maze.START_POSITION.getNewInstance();
     this.exitPosition = new Position(-1, -1);
     this.visited = {};
+    this.findingExit = false;
     Object.defineProperty(this.visited, this.position.toString(), {});
   }
   findExitRecursively(DIRECTIONS = Direction.ALL()) {
@@ -90,8 +91,10 @@ class Mover {
     }
   }
   findExitPath() {
+    this.findingExit = true;
     if (this.findExitRecursively()) {
       this.leaveMaze();
+      this.findingExit = false;
     }
   }
 }
