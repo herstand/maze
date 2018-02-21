@@ -91,10 +91,11 @@ class Maze {
     }
   }
   //TODO
-  getDirectionsOfExitFrom(position) {
-//     if (Math.abs((this.EXIT_POSITION / 2) - position.y) > Math.abs((this.grid.length / 2) - position.x)) {
-
-//     }
+  getDirectionTowardExit(position) {
+    var angleToExit = position.getAngleTo(this.EXIT_POSITION);
+    if (angleToExit >= 90) {
+      
+    }
   }
   toString() {
     return this.grid.reduce(

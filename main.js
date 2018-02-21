@@ -98,17 +98,11 @@ function makeGridEl() {
 }
 
 function findExitPathAndAnimate() {
-  if (mover.findingExit) {
-    console.log("Clicked too soon.");
-    return;
+  if (!mover.maze.containsPosition(mover.exitPosition)) {
+    mover.reset();
+    mover.findExitPath();
   }
-  if (!mover.findingExit) {
-    if (!mover.maze.containsPosition(mover.exitPosition)) {
-      mover.reset();
-      mover.findExitPath();
-    }
-    animateMoves();
-  }
+  animateMoves();
 }
 
 function addValueToPositionProperty(el, positionProperty, value) {

@@ -18,11 +18,12 @@ class Utilities {
     return ((abs / 2) * (abs + 1)) * (abs / value) || 0;
   }
   static weightedRandom(weightedList) {
-    var sum = 0, 
+    var sum = 0,
       r = Math.random();
     for (let i in weightedList) {
       sum += weightedList[i];
       if (r <= sum) return i;
     }
+    return 0;
   }
 }

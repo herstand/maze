@@ -18,6 +18,11 @@ class Position {
     this.position[1] = newValue;
     return this;
   }
+  getAngleTo(position) {
+    var heightOfAdj = this.y - position.y,
+      widthOfOpp = this.x - position.x;
+    return Math.atan2(widthOfOpp, heightOfAdj);
+  }
   setPosition(x, y) {
     this.position[0] = x;
     this.position[1] = y;
