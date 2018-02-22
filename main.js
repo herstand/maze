@@ -22,6 +22,14 @@ function main () {
       findExitPathAndAnimate()
     }
   );
+  document.getElementById("resetView").addEventListener(
+    "click",
+    () => {
+      document.querySelector("#human").click();
+      window.clearInterval(animateMovesInterval);
+      resetMoverEl();
+    }
+  );
   document.getElementById("size").addEventListener(
     "change",
     (e) => {
