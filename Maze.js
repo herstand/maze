@@ -14,14 +14,14 @@ class Maze {
 
   static findExit(grid) {
     var exit;
-    return grid.some((row, y) => {
+    grid.some((row, y) => {
       let x = row.find(value => Cell.CELL(value).is(Cell.EXIT));
       if (x) {
         exit = new Position(x,y);
         return true;
       } 
     });
-    throw Error(`No ${Cell.EXIT} in ${grid}`);
+    return exit;
   }
   
   get indexOfLastColumn() {
