@@ -6,17 +6,17 @@ class Maze {
       writable : false
     });
     Object.defineProperty(this, "EXIT_POSITION", {
-      value : Maze.findExit(this.grid),
+      value : this.loadEXIT_POSITION(),
       writable : false
     });
     Object.seal(this);
   }
 
-  static findExit(grid) {
+  loadEXIT_POSITION() {
     var exit;
-    grid.some((row, y) => {
-      let x = row.find(value => Cell.CELL(value).is(Cell.EXIT));
-      if (x) {
+    this.grid.some((row, y) => {
+      let x = row.findIndex(value => Cell.CELL(value).is(Cell.EXIT));
+      if (x !== -1) {
         exit = new Position(x,y);
         return true;
       } 
@@ -56,6 +56,7 @@ class Maze {
       position.y <= this.indexOfLastRow
     );
   }
+  
   getDirectionOfPerimeterFrom(position) {
     if (!this.containsPosition(position.peek(Direction.UP))) {
       return Direction.UP;

@@ -2,19 +2,22 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width">
   <script type="text/javascript" src="loadScripts.js"></script>
   <style type="text/css">
     * {
       box-sizing:border-box;
+      vertical-align:middle;
+    }
+    body {
+      font-size:20px;
     }
     #gameboard {
       text-align:center;
     }
     #grid {
       position:relative;
+      background:black;
       display:inline-block;
-      overflow:hidden;
     }
     table {
       font-size:35px;
@@ -28,16 +31,17 @@
     }
     td {
       background:white;
-      transition:1s;
+      transition:500ms;
       text-align:center;
       border-color:white;
       border-style:solid;
       border-width:0px;
       padding:0px;
       margin:0px;
+      transition:1000ms;
     }
     td.wall {
-      background:black;
+      background:#990000;
     }
     td.start {
       background:white;
@@ -45,14 +49,23 @@
     td.exit {
       background:green;
     }
+    td.unlit {
+      opacity:0;
+    }
+    td.lit {
+      opacity:1;
+    }
+    td.previouslyLit {
+      opacity:.5;
+    }
 
     .mover {
       position:absolute;
-      background:#990000;
+      background:#000099;
       top:0px;
       left:0px;
       display:inline-block;
-      transition:300ms;
+      transition:500ms;
       z-index:1;
     }
 
@@ -61,14 +74,16 @@
       margin:30px 0px;
     }
     #options button {
+      margin:0px 20px;
+    }
+    #options button {
       width:250px;
       height:50px;
-      font-size:20px;
+      font-size:18px;
       background:red;
       border-radius:10px;
       border-color:black;
       border-width:3px;
-      vertical-align:middle;
     }
     #options button:hover {
       text-decoration:underline;
@@ -83,25 +98,46 @@
     #options button:focus {
       outline:none;
     }
-    label[for="size"] {
+    #options .inputs * {
+      height:25px;
+    }
+    label {
       display:inline-block;
-      margin-left:20px;
-      font-size:28px;
-      vertical-align:middle;
+    }
+    .viewLabel {
+      margin-right:5px;
+    }
+    .container {
+      display:inline-block;
+      position:relative;
+    }
+    input[type="radio"] {
+      margin:0px 7px;
+      display:inline-block;
+      float:left;
+    }
+    input#robot {
+        margin-left:15px;
+    }
+    input:checked + label[for="human"],input:checked + label[for="robot"] {
+      font-weight:bold;
+    }
+    label[for="size"] {
+      margin-left:60px;
     }
     #size {
       display:inline-block;
-      height:10px;
       width:100px;
       margin-left:10px;
       font-size:30px;
-      vertical-align:middle;
     }
   </style>
 </head>
 <body>
 <div id="gameboard">
-  <div id="options"><button id="animateExitPath">Show A Maze Solution</button><label for="size">Maze Size: </label><input min="3" max="75" id="size" type="range" value="20" /></div>
+  <div id="options">
+  <p class="buttons"><button id="animateExitPath">Show Robot Maze Solution</button><button id="resetView">Reset view</button></p>
+  <p class="inputs"><span class="viewLabel">View as: </span><span class="container"><label for="human">Human</label><input name="view" id="human" value="HUMAN" type="radio" checked></><span class="container"><label for="robot">Robot</label><input name="view" value="ROBOT" id="robot" type="radio"></span><label for="size">Maze Size: </label><input min="3" max="75" id="size" type="range" value="20" /></p></div>
   <div id="grid"></div>
 </div>
 
