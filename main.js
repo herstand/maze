@@ -80,13 +80,13 @@ function makeGridEl() {
       cellEl.style.width = cellSideLength + "px";
       cellEl.style.height = cellSideLength + "px";
       gridPositionChecker.setPosition(x,y);
-      var posVal = maze.getValueAt(gridPositionChecker);
+      var cellValue = maze.getValueAt(gridPositionChecker);
       cellEl.setAttribute("data-position", `${x}-${y}`);
-      if (Maze.is(posVal, Maze.WALL)) {
+      if (Cell.CELL(cellValue).is(Cell.WALL)) {
         cellEl.classList.add("wall");
-      } else if (Maze.is(posVal, Maze.EXIT)) {
+      } else if (Cell.CELL(cellValue).is(Cell.EXIT)) {
         cellEl.classList.add("exit");
-      } else if (Maze.is(posVal, Maze.START)) {
+      } else if (Cell.CELL(cellValue).is(Cell.START)) {
         cellEl.classList.add("start");
       }
       rowEl.appendChild(cellEl);

@@ -13,14 +13,14 @@ class Mover {
 
   whereIsTouchingExit() {
     return Direction.ALL().filter(
-      DIRECTION => Maze.is(
-        this.maze.getValueAt(this.position.peek(DIRECTION)),
-        Maze.EXIT
-      )
+      DIRECTION => 
+        Cell.CELL(
+          this.maze.getValueAt(this.position.peek(DIRECTION))
+        ).is(Cell.EXIT)
     );
   }
   hasFoundExit() {
-    return Maze.is(this.maze.getValueAt(this.position), Maze.EXIT);
+    return Cell.CELL(this.maze.getValueAt(this.position)).is(Cell.EXIT);
   }
   leaveMaze() {
     console.log(`Found exit at: ${this.position}`);
@@ -31,7 +31,7 @@ class Mover {
   isValidPosition(position, visited) {
     return (
       this.maze.containsPosition(position) &&
-      !Maze.is(this.maze.getValueAt(position), Maze.WALL) &&
+      !Cell.CELL(this.maze.getValueAt(position)).is(Cell.WALL) &&
       !visited.hasOwnProperty(position)
     );
   }
@@ -51,27 +51,31 @@ class Mover {
     var randomIndex = -1,
     directionWeights = Array(DIRECTIONS.length).fill(0);
     if (
-      this.position.x > Math.ceil(this.maze.grid[0].length / 2) && 
+      this.position.x > this.maze.EXIT_POSITION.x && 
       DIRECTIONS.find(dir => dir.is(Direction.LEFT))
     ) {
-      directionWeights[DIRECTIONS.findIndex(dir => dir.is(Direction.LEFT))] = .5;
+      directionWeights[DIRECTIONS.findIndex(dir => dir.is(Direction.LEFT))] = 
+        (this.position.y === this.maze.EXIT_POSITION.y) ? 1 :.5;
     } else if (
-      this.position.x <= Math.ceil(this.maze.grid[0].length / 2) &&
+      this.position.x < this.maze.EXIT_POSITION.x &&
       DIRECTIONS.find(dir => dir.is(Direction.RIGHT))
     ) {
-      directionWeights[DIRECTIONS.findIndex(dir => dir.is(Direction.RIGHT))] = .5;
+      directionWeights[DIRECTIONS.findIndex(dir => dir.is(Direction.RIGHT))] = 
+        (this.position.y === this.maze.EXIT_POSITION.y) ? 1 :.5;
     } 
     if (
-      this.position.y > Math.ceil(this.maze.grid.length / 2) &&
+      this.position.y > this.maze.EXIT_POSITION.y &&
       DIRECTIONS.find(dir => dir.is(Direction.UP))
     ) {
-      directionWeights[DIRECTIONS.findIndex(dir => dir.is(Direction.UP))] = .5;
+      directionWeights[DIRECTIONS.findIndex(dir => dir.is(Direction.UP))] = 
+        (this.position.x === this.maze.EXIT_POSITION.x) ? 1 :.5;
     } else if (
-      this.position.y <= Math.ceil(this.maze.grid.length / 2) &&
+      this.position.y < this.maze.EXIT_POSITION.y &&
       DIRECTIONS.find(dir => dir.is(Direction.DOWN))
     ) {
-      directionWeights[DIRECTIONS.findIndex(dir => dir.is(Direction.DOWN))] = .5;
-    }
+      directionWeights[DIRECTIONS.findIndex(dir => dir.is(Direction.DOWN))] = 
+        (this.position.x === this.maze.EXIT_POSITION.x) ? 1 :.5;
+    } 
     randomIndex = Utilities.weightedRandom(directionWeights);
     return DIRECTIONS[randomIndex];
   }

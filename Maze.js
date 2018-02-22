@@ -13,40 +13,17 @@ class Maze {
   }
 
   static findExit(grid) {
-    return grid.find(cols => cols.find(cell => cell === Maze.EXIT));
+    var exit;
+    return grid.some((row, y) => {
+      let x = row.find(value => Cell.CELL(value).is(Cell.EXIT));
+      if (x) {
+        exit = new Position(x,y);
+        return true;
+      } 
+    });
+    throw Error(`No ${Cell.EXIT} in ${grid}`);
   }
-
-  static is(SPOT1, SPOT2) {
-    return +SPOT1 == +SPOT2; // 2 == {valueOf : () => 2}, +{valueOf : () => 2} == +{valueOf : () => 2}
-  }
-  static get START() {
-    return {
-      valueOf : () => 4,
-      name : "START",
-      toString : function() { return "S"; }
-    }
-  }
-  static get EXIT() {
-    return {
-      valueOf : () => 2,
-      name : "EXIT",
-      toString : function() { return "E"; }
-    };
-  }
-  static get WALL() {
-    return {
-      valueOf : () => 1,
-      name : "WALL",
-      toString : function() { return "W"; }
-    };
-  }
-  static get OPEN() {
-    return {
-      valueOf : () => 0,
-      name : "OPEN",
-      toString : function() { return "O"; }
-    };
-  }
+  
   get indexOfLastColumn() {
     return this.grid[0].length - 1;
   }
@@ -54,21 +31,21 @@ class Maze {
     return this.grid.length - 1;
   }
   getValueAt(position) {
-    var posVal = this.grid[position.y][position.x];
-    if (Maze.is(posVal,Maze.START)) {
-      return Maze.START;
-    }else if (Maze.is(posVal,Maze.EXIT)) {
-      return Maze.EXIT;
-    } else if (Maze.is(posVal,Maze.WALL)) {
-      return Maze.WALL;
-    } else if (Maze.is(posVal,Maze.OPEN)) {
-      return Maze.OPEN;
+    var cellValue = this.grid[position.y][position.x];
+    if (Cell.CELL(cellValue).is(Cell.START)) {
+      return Cell.START;
+    }else if (Cell.CELL(cellValue).is(Cell.EXIT)) {
+      return Cell.EXIT;
+    } else if (Cell.CELL(cellValue).is(Cell.WALL)) {
+      return Cell.WALL;
+    } else if (Cell.CELL(cellValue).is(Cell.OPEN)) {
+      return Cell.OPEN;
     } else {
-      throw `ERROR: Unknown value ${posVal} at ${position} in ${this.grid}`;
+      throw `ERROR: Unknown value ${cellValue} at ${position} in ${this.grid}`;
     }
   }
   isExit(position) {
-    return this.getValueAt(position).value === Maze.EXIT.value;
+    return this.getValueAt(position).value === Cell.EXIT.value;
   }
 
   containsPosition(position) {

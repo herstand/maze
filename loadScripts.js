@@ -8,6 +8,7 @@ load("Utilities.js");
 load("GenerateMaze.js");
 load("Direction.js");
 load("Position.js");
+load("Cell.js");
 load("Maze.js");
 load("Mover.js");
 load("main.js");
