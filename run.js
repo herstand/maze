@@ -1,1 +1,1 @@
-main();
+window.game = game.main();

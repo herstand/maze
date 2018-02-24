@@ -10,6 +10,9 @@ class Utilities {
       this
     );
   }
+  static runAll(obj, ...args) {
+    args.forEach(fnObj => obj[fnObj.fn](...fnObj.args));
+  }
   static capitalize(string) {
     return string.charAt(0).toUpperCase() + string.slice(1);
   }

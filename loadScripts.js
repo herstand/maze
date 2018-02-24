@@ -11,6 +11,7 @@ load("Position.js");
 load("Cell.js");
 load("Maze.js");
 load("Mover.js");
+load("View.js");
 load("main.js");
 load("run.js");
 

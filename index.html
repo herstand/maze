@@ -44,7 +44,7 @@
       background:#990000;
     }
     td.start {
-      background:white;
+      background:blue;
     }
     td.exit {
       background:green;
@@ -61,12 +61,20 @@
 
     .mover {
       position:absolute;
-      background:#000099;
+      background-color:white;
       top:0px;
       left:0px;
       display:inline-block;
       transition:500ms;
       z-index:1;
+    }
+    .mover.human {
+      background-image:url("/images/human.svg");
+      background-size:contain;
+    }
+    .mover.robot {
+      background-image:url("/images/robot.svg");
+      background-size:contain;
     }
 
     #options {
@@ -137,7 +145,7 @@
 <div id="gameboard">
   <div id="options">
   <p class="buttons"><button id="animateExitPath">Show Robot Maze Solution</button><button id="resetView">Reset view</button></p>
-  <p class="inputs"><span class="viewLabel">View as: </span><span class="container"><label for="human">Human</label><input name="view" id="human" value="HUMAN" type="radio" checked></><span class="container"><label for="robot">Robot</label><input name="view" value="ROBOT" id="robot" type="radio"></span><label for="size">Maze Size: </label><input min="7" max="75" id="size" type="range" value="20" /></p></div>
+  <p class="inputs"><span class="viewLabel">View as: </span><span class="container"><label for="human">Human</label><input name="view" id="human" value="human" type="radio" checked></><span class="container"><label for="robot">Robot</label><input name="view" value="robot" id="robot" type="radio"></span><label for="size">Maze Size: </label><input min="7" max="75" id="size" type="range" value="20" /></p></div>
   <div id="grid"></div>
 </div>
 

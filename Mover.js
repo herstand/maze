@@ -26,19 +26,19 @@ class Mover {
     console.log(`Found exit at: ${this.position}`);
     this.exitPosition.imitate(this.position);
     Object.freeze(this.exitPosition);
+    this.position.imitate(this.maze.START_POSITION);
     return true;
   }
-  isValidPosition(position, visited) {
+
+  isValidPosition(position) {
     return (
       this.maze.containsPosition(position) &&
-      !Cell.CELL(this.maze.getValueAt(position)).is(Cell.WALL) &&
-      !visited.hasOwnProperty(position)
+      !Cell.CELL(this.maze.getValueAt(position)).is(Cell.WALL)
     );
   }
-  canMove(DIRECTION, visited) {
+  canMove(DIRECTION) {
     return this.isValidPosition(
-      this.position.peek(DIRECTION), 
-      visited
+      this.position.peek(DIRECTION)
     );
   }
 
@@ -80,16 +80,35 @@ class Mover {
     return DIRECTIONS[randomIndex];
   }
 
+  findExitPath_Async() {
+    return new Promise(
+      (resolve, reject) => {
+        if (this.findExitPath()) {
+          this.leaveMaze();
+          resolve(this.exitPosition);
+        } else {
+          reject("No exit position found!");
+        }
+      }
+    );
+  }
+
   findExitPath() {
-    var visited = {};
-    var moveTowardExit = DIRECTION => {
-      this.position.onwardMove(DIRECTION);
-      Object.defineProperty(visited, this.position.toString(), {}); 
-    }
+    var visited = {},
+      moveTowardExit = (DIRECTION) => {
+        this.position.onwardMove(DIRECTION);
+        Object.defineProperty(visited, this.position.toString(), {}); 
+      },
+      isValidPosition = (position, visited) => {
+        return !visited.hasOwnProperty(position);
+      },
+      canMove = (DIRECTION, visited) => {
+        return this.canMove(DIRECTION) && isValidPosition(this.position.peek(DIRECTION), visited);
+      }
     var findExitRecursively = (DIRECTIONS = Direction.ALL()) => {
       if (DIRECTIONS.length > 0) {
         let DIRECTION = this.chooseNextDirection(DIRECTIONS);
-        if (this.canMove(DIRECTION, visited)) {
+        if (canMove(DIRECTION, visited)) {
           let exitDIRECTION = this.whereIsTouchingExit();
           if (exitDIRECTION.length) {
             moveTowardExit(exitDIRECTION[0]);
@@ -111,9 +130,7 @@ class Mover {
         return findExitRecursively(DIRECTIONS);
       }
     }
-
-    if (findExitRecursively()) {
-      this.leaveMaze();
-    }
+    return findExitRecursively();
   }
+
 }

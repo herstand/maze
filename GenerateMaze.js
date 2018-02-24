@@ -1,7 +1,7 @@
 function makeFilledArray(size, fn) {
   return Array(size).fill(0).map((n, i, arr) => arr[i] = fn())
 }
-function generateMaze(width = 81, height = 51, complexity = .75, density = .75) {
+function generateMaze(width = 15, height = 15, complexity = .75, density = .75) {
   var grid;
   var shape = [
     parseInt(height / 2) * 2 + 1,
@@ -20,13 +20,13 @@ function generateMaze(width = 81, height = 51, complexity = .75, density = .75) 
     n[arr[0].length - 1] = 1;
   });
 
-  for (var i in Array(density).fill(0).map((n, i, arr) => arr[i] = i)) {
+  for (let i in Array(density).fill(0).map((n, i, arr) => arr[i] = i)) {
     let [x,y] = [
       (Math.ceil(Math.random()*parseInt(shape[1] / 2))) * 2,
       (Math.ceil(Math.random()*parseInt(shape[0] / 2))) * 2
     ];
     grid[y][x] = 1;
-    for (var j in Array(complexity).fill(0).map((n, comInd, arr) => arr[comInd] = comInd)) {
+    for (let j in Array(complexity).fill(0).map((n, comInd, arr) => arr[comInd] = comInd)) {
       let neighbors = [];
       if (x > 1)              neighbors.push([y, x - 2]);
       if (x < shape[1] - 2)   neighbors.push([y, x + 2]);
@@ -46,6 +46,24 @@ function generateMaze(width = 81, height = 51, complexity = .75, density = .75) 
   // Set start
   grid[1][1] = 4;
   // Set exit
-  grid[Math.ceil(Math.random()*(grid.length-2)+1)][Math.ceil(Math.random()*(grid.length-2) + 1)] = 2;
+  var possibleExits = 
+    grid.reduce(
+      (possibleExits, row, y) => 
+        possibleExits.concat(
+          row.reduce((possibleExits_inner, col, x) => 
+          {
+            if (col === 0) {
+              possibleExits_inner.push([x,y]);
+            }
+            return possibleExits_inner;
+          }, 
+          []
+          )
+        ), 
+      []
+    );
+  possibleExits = possibleExits[Math.ceil((Math.random() * (possibleExits.length - 1)))];
+  grid[possibleExits[0]][possibleExits[1]] = 2;
+//   grid[Math.ceil(Math.random()*(grid.length-3)+1)][Math.ceil(Math.random()*(grid.length-3) + 1)] = 2;
   return grid;
 }
