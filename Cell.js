@@ -11,7 +11,7 @@ class Cell {
   static createCELL(value) {
     return Object.create(Cell.cellFunctions(), {
       "valueOf" : {
-       "value" : () => value,
+       "value" : () => parseInt(value),
        "enumerable" : true,
        "writable" : false
       },

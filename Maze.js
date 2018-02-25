@@ -15,7 +15,9 @@ class Maze {
   loadEXIT_POSITION() {
     var exit;
     this.grid.some((row, y) => {
-      let x = row.findIndex(value => Cell.CELL(value).is(Cell.EXIT));
+      let x = row.findIndex(
+        value => Cell.CELL(value).is(Cell.EXIT)
+      );
       if (x !== -1) {
         exit = new Position(x,y);
         return true;

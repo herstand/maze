@@ -22,7 +22,12 @@ var game = (function(){
 
   function initializeModelProperties() {
     var url = new URL(window.location.href);
-    var [width,height,view] = [...Array(2).fill(parseInt(url.searchParams.get("size"))), View.getVIEW(url.searchParams.get("view"))];
+    var [width,height,view,grid] = 
+      [
+        ...Array(2).fill(parseInt(url.searchParams.get("size"))), 
+        View.getVIEW(url.searchParams.get("view")),
+        url.searchParams.get("grid")
+      ];
     if (
       (
         url.searchParams.get("size") &&
@@ -49,13 +54,15 @@ var game = (function(){
       view : 
       (
         view || View.getVIEW(document.querySelector("[name='view']:checked").value)
-      )
+      ),
+      grid : 
+        Utilities.decodeGrid(grid)
     };
   }
 
   function setupMaze(options) {
     prepareMaze();
-    setupModel(options.size);
+    setupModel(options);
     setupViewProperties(options.view);
     makeGridEl();
     cleanupMazeSetup();
@@ -85,13 +92,17 @@ var game = (function(){
     document.getElementById("size").setAttribute("disabled", "true");
     document.getElementById("animateExitPath").setAttribute("disabled", "true");
   }
-  function setupModel(size) {
+  function setupModel(options) {
     mover = new Mover(
       new Maze(
-        generateMaze(size.width, size.height), 
+        options.grid || generateMaze(options.size.width, options.size.height), 
         new Position(1,1)
       )
     );
+    window.history.pushState(
+      {}, 
+      '', 
+      (new URL(window.location.href).pathname) + `?size=${document.getElementById("size").value}&view=${document.querySelector("input[name='view']:checked").value}&grid=${Utilities.encodeGrid(mover.maze.grid, mover.maze.START_POSITION,mover.maze.EXIT_POSITION)}`);
   }
   function setupViewProperties(_view) {
     cellSideLength = Math.floor(mazeScale/(mover.maze.grid[0].length * 4));
@@ -188,9 +199,13 @@ var game = (function(){
         window.history.pushState(
           {}, 
           '', 
-          (new URL(window.location.href).pathname) + `?size=${e.target.value}&view=${document.querySelector("input[name='view']:checked").value}`
+          (new URL(window.location.href).pathname) + `?size=${e.target.value}&view=${document.querySelector("input[name='view']:checked").value}&grid=${Utilities.encodeGrid(window.game.mover.maze.grid, mover.maze.START_POSITION,mover.maze.EXIT_POSITION)}`
         );
-        setupMaze({size : {width : e.target.value, height : e.target.value}, view : View.getVIEW(document.querySelector("[name='view']:checked").value)});
+        setupMaze({
+          size : {width : e.target.value, height : e.target.value}, 
+          view : View.getVIEW(document.querySelector("[name='view']:checked").value),
+          grid : null
+        });
       }
     );
     Array.from(document.querySelectorAll("input[name='view']")).forEach((viewEl) => viewEl.addEventListener(
@@ -200,7 +215,7 @@ var game = (function(){
         window.history.pushState(
           {}, 
           '', 
-          (new URL(window.location.href).pathname) + `?size=${document.getElementById('size').value}&view=${e.target.value}`
+          (new URL(window.location.href).pathname) + `?size=${document.getElementById('size').value}&view=${e.target.value}&grid=${Utilities.encodeGrid(window.game.mover.maze.grid, mover.maze.START_POSITION,mover.maze.EXIT_POSITION)}`
         );
         window.game.view = View.getVIEW(e.target.value);
 
@@ -238,6 +253,9 @@ var game = (function(){
     mover.position.setPosition(mover.maze.START_POSITION.x, mover.maze.START_POSITION.y);
     moverEl.style.top = startLocation.y + "px";
     moverEl.style.left = startLocation.x + "px";
+    if (document.getElementById("grid").classList.contains("onExit")) {
+      document.getElementById("grid").classList.remove("onExit");
+    }
   }
 
   async function findExitPathAndAnimate() {
