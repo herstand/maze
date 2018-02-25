@@ -31,7 +31,7 @@ class View {
     return View.ALL().some(n => n.value === viewValue);
   }
   static getVIEW(viewName) {
-    return View.ALL().find(n => n.name === viewName.toLowerCase());
+    return viewName && View.ALL().find(n => n.name === viewName.toLowerCase());
   }
   static ALL() {
     return Object.values(Object.getOwnPropertyDescriptors(View)).filter(

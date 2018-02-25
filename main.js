@@ -53,7 +53,7 @@ var game = (function(){
     };
   }
 
-  async function setupMaze(options) {
+  function setupMaze(options) {
     prepareMaze();
     setupModel(options.size);
     setupViewProperties(options.view);
@@ -91,8 +91,6 @@ var game = (function(){
         new Position(1,1)
       )
     );
-    robot = new Mover(mover.maze);
-    robot.exitPosition.imitate(mover.exitPosition);
   }
   function setupViewProperties(_view) {
     cellSideLength = Math.floor(mazeScale/(mover.maze.grid[0].length * 4));
@@ -141,20 +139,18 @@ var game = (function(){
   function setupEventListeners() {
     document.addEventListener(
       "keydown", (e) => {
-        console.log(e.key);
-        var manualMover = view.is(View.HUMAN) ? mover : robot;
         if (!animating) {
-          if (e.key === "ArrowUp" && manualMover.canMove(Direction.UP)) {
-            manualMover.position.onwardMove(Direction.UP);
+          if (e.key === "ArrowUp" && mover.canMove(Direction.UP)) {
+            mover.position.onwardMove(Direction.UP);
             animateMove(moverEl, Direction.UP);
-          } else if (e.key === "ArrowRight" && manualMover.canMove(Direction.RIGHT)) {
-            manualMover.position.onwardMove(Direction.RIGHT);
+          } else if (e.key === "ArrowRight" && mover.canMove(Direction.RIGHT)) {
+            mover.position.onwardMove(Direction.RIGHT);
             animateMove(moverEl, Direction.RIGHT);
-          } else if (e.key === "ArrowDown" && manualMover.canMove(Direction.DOWN)) {
-            manualMover.position.onwardMove(Direction.DOWN);
+          } else if (e.key === "ArrowDown" && mover.canMove(Direction.DOWN)) {
+            mover.position.onwardMove(Direction.DOWN);
             animateMove(moverEl, Direction.DOWN);
-          } else if (e.key === "ArrowLeft" && manualMover.canMove(Direction.LEFT)) {
-            manualMover.position.onwardMove(Direction.LEFT);
+          } else if (e.key === "ArrowLeft" && mover.canMove(Direction.LEFT)) {
+            mover.position.onwardMove(Direction.LEFT);
             animateMove(moverEl, Direction.LEFT);
           }
         }
@@ -191,25 +187,27 @@ var game = (function(){
         window.history.pushState(
           {}, 
           '', 
-          (new URL(window.location.href).pathname) + `?size=${e.target.value}`
+          (new URL(window.location.href).pathname) + `?size=${e.target.value}&view=${document.querySelector("input[name='view']:checked").value}`
         );
-        setupMaze({size : {width : e.target.value, height : e.target.value}, view : document.querySelector("[name='view']:checked").value});
+        setupMaze({size : {width : e.target.value, height : e.target.value}, view : View.getVIEW(document.querySelector("[name='view']:checked").value)});
       }
     );
     Array.from(document.querySelectorAll("input[name='view']")).forEach((viewEl) => viewEl.addEventListener(
       "change",
       (e) => {
+        e.target.blur();
         window.history.pushState(
           {}, 
           '', 
           (new URL(window.location.href).pathname) + `?size=${document.getElementById('size').value}&view=${e.target.value}`
         );
         window.game.view = View.getVIEW(e.target.value);
+
         moverEl.classList.toggle("robot");
         moverEl.classList.toggle("human");
         if (View.getVIEW(e.target.value).is(View.ROBOT)) {
           hideMaze();
-          updateFlashlight(robot.position.x,robot.position.y);
+          updateFlashlight(mover.position.x,mover.position.y);
         } else { //HUMAN
           showMaze();
         }
@@ -221,7 +219,7 @@ var game = (function(){
     document.getElementById("animateExitPath").removeAttribute("disabled");
     if (view.is(View.ROBOT)) {
       hideMaze();
-      updateFlashlight(robot.position.x, robot.position.y);
+      updateFlashlight(mover.position.x, mover.position.y);
     }
     gridIsBuilt = true;
   }
@@ -236,16 +234,12 @@ var game = (function(){
   }
 
   function resetMoverEl() {
-    game.mover.position.setPosition(mover.maze.START_POSITION.x, mover.maze.START_POSITION.y);
-    robot.position.setPosition(mover.maze.START_POSITION.x, mover.maze.START_POSITION.y);
+    mover.position.setPosition(mover.maze.START_POSITION.x, mover.maze.START_POSITION.y);
     moverEl.style.top = startLocation.y + "px";
     moverEl.style.left = startLocation.x + "px";
   }
 
   async function findExitPathAndAnimate() {
-    if (!findingExitPath) {
-      findingExitPath = mover.findExitPath_Async();  
-    }
     animating = true;
     findingExitPath.then(
       (exit) => animateRobot(), 
@@ -325,21 +319,26 @@ var game = (function(){
     }
     addValueToPositionProperty(el, property, value);
     if (window.game.view.is(View.ROBOT)) {
-      updateFlashlight(robot.position.x, robot.position.y);
+      updateFlashlight(mover.position.x, mover.position.y);
+    }
+    if (mover.position.x === mover.maze.EXIT_POSITION.x && mover.position.y === mover.maze.EXIT_POSITION.y) {
+      Array.from(document.querySelectorAll("td.wall")).forEach(n => n.classList.add("onExit"));
+    } else {
+      Array.from(document.querySelectorAll("td.wall.onExit")).forEach(n => n.classList.remove("onExit"));
     }
   }
 
   function animateRobot() {
     var moveCount = 0;
     hideMaze();
-    updateFlashlight(robot.position.x, robot.position.y);
+    updateFlashlight(mover.position.x, mover.position.y);
     
     animateRobotInterval = window.setInterval(() => {
       try {
         let move = mover.exitPosition.moves[moveCount];
         if (moveCount < mover.exitPosition.moves.length) {
           animateMove(moverEl, move);
-          robot.position.onwardMove(move);
+          mover.position.onwardMove(move);
         } else {
           stopRobot();
           animating = false;
