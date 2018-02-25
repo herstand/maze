@@ -193,13 +193,28 @@ var game = (function(){
         resetMoverEl();
       }
     );
+    document.getElementById("newMaze").addEventListener(
+      "click",
+      (e) => {
+        window.history.pushState(
+          {}, 
+          '', 
+          (new URL(window.location.href).pathname) + `?size=${document.getElementById("size").value}&view=${document.querySelector("input[name='view']:checked").value}`
+        );
+        setupMaze({
+          size : {width : document.getElementById("size").value, height : document.getElementById("size").value}, 
+          view : View.getVIEW(document.querySelector("[name='view']:checked").value),
+          grid : null
+        });
+      }
+    );
     document.getElementById("size").addEventListener(
       "change",
       (e) => {
         window.history.pushState(
           {}, 
           '', 
-          (new URL(window.location.href).pathname) + `?size=${e.target.value}&view=${document.querySelector("input[name='view']:checked").value}&grid=${Utilities.encodeGrid(window.game.mover.maze.grid, mover.maze.START_POSITION,mover.maze.EXIT_POSITION)}`
+          (new URL(window.location.href).pathname) + `?size=${e.target.value}&view=${document.querySelector("input[name='view']:checked").value}`
         );
         setupMaze({
           size : {width : e.target.value, height : e.target.value}, 
@@ -315,6 +330,7 @@ var game = (function(){
 
   function stopRobot() {
     window.clearInterval(animateRobotInterval);
+    animating = false;
   }
   function playRobot() {
 
@@ -360,7 +376,6 @@ var game = (function(){
           animateMove(moverEl, move);
         } else {
           stopRobot();
-          animating = false;
         }
         moveCount += 1;
       } catch (e) {
