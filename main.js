@@ -64,6 +64,7 @@ var game = (function(){
   }
   function resetMaze() {
     stopRobot();
+    document.getElementById("grid").classList.remove("onExit");
     Utilities.runAll(
       document.createRange(),
       {fn: "selectNodeContents",args: [document.querySelector("#grid table")]},
@@ -322,9 +323,9 @@ var game = (function(){
       updateFlashlight(mover.position.x, mover.position.y);
     }
     if (mover.position.x === mover.maze.EXIT_POSITION.x && mover.position.y === mover.maze.EXIT_POSITION.y) {
-      Array.from(document.querySelectorAll("td.wall")).forEach(n => n.classList.add("onExit"));
-    } else {
-      Array.from(document.querySelectorAll("td.wall.onExit")).forEach(n => n.classList.remove("onExit"));
+      document.querySelector("#grid").classList.add("onExit");
+    } else if (document.querySelector("#grid.onExit")) {
+      document.querySelector("#grid.onExit").classList.remove("onExit");
     }
   }
 
@@ -337,8 +338,8 @@ var game = (function(){
       try {
         let move = mover.exitPosition.moves[moveCount];
         if (moveCount < mover.exitPosition.moves.length) {
-          animateMove(moverEl, move);
           mover.position.onwardMove(move);
+          animateMove(moverEl, move);
         } else {
           stopRobot();
           animating = false;
