@@ -102,7 +102,7 @@ var game = (function(){
     window.history.pushState(
       {}, 
       '', 
-      (new URL(window.location.href).pathname) + `?size=${document.getElementById("size").value}&view=${document.querySelector("input[name='view']:checked").value}&grid=${Utilities.encodeGrid(mover.maze.grid, mover.maze.START_POSITION,mover.maze.EXIT_POSITION)}`);
+      (new URL(window.location.href).pathname) + `?size=${document.getElementById("size").value}&view=${document.querySelector("input[name='view']:checked").value}&grid=${Utilities.encodeGrid(mover.maze.grid, mover.maze.EXIT_POSITION)}`);
   }
   function setupViewProperties(_view) {
     cellSideLength = Math.floor(mazeScale/(mover.maze.grid[0].length * 4));
@@ -230,7 +230,7 @@ var game = (function(){
         window.history.pushState(
           {}, 
           '', 
-          (new URL(window.location.href).pathname) + `?size=${document.getElementById('size').value}&view=${e.target.value}&grid=${Utilities.encodeGrid(window.game.mover.maze.grid, mover.maze.START_POSITION,mover.maze.EXIT_POSITION)}`
+          (new URL(window.location.href).pathname) + `?size=${document.getElementById('size').value}&view=${e.target.value}&grid=${Utilities.encodeGrid(window.game.mover.maze.grid, mover.maze.EXIT_POSITION)}`
         );
         window.game.view = View.getVIEW(e.target.value);
 

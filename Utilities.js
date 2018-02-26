@@ -79,11 +79,11 @@ class Utilities {
     return num;
   }
 
-  static encodeGrid(grid,start,exit) {
+  static encodeGrid(grid,exit) {
     if (grid === null) {
       return null;
     }
-    return `${start.x},${start.y},${exit.x},${exit.y},` + grid.reduce(
+    return `${exit.x},${exit.y},` + grid.reduce(
       (tableEncoding, row) =>
         tableEncoding.concat(
           Utilities.encodeInt(
@@ -105,8 +105,6 @@ class Utilities {
       return null;
     }
     gridEncoding = gridEncoding.split(",");
-    var startX = gridEncoding.shift();
-    var startY = gridEncoding.shift();
     var exitX = gridEncoding.shift();
     var exitY = gridEncoding.shift();
     var grid = gridEncoding.map(
@@ -118,7 +116,7 @@ class Utilities {
             1
           ).split("").map(n => parseInt(n))
      );
-     grid[startY][startX] = Cell.START.valueOf();
+     grid[1][1] = Cell.START.valueOf();
      grid[exitY][exitX] = Cell.EXIT.valueOf();
      return grid;
   }
