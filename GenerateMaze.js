@@ -1,7 +1,7 @@
 function makeFilledArray(size, fn) {
   return Array(size).fill(0).map((n, i, arr) => arr[i] = fn())
 }
-function generateMaze(width = 15, height = 15, complexity = .75, density = .75) {
+function generateMaze(width, height, complexity = .75, density = .75) {
   var grid;
   var shape = [
     parseInt(height / 2) * 2 + 1,
