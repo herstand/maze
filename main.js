@@ -53,7 +53,7 @@ var game = (function(){
       },
       view : 
       (
-        view || View.getVIEW(document.querySelector("[name='view']:checked").value)
+        view || View.HUMAN
       ),
       grid : 
         Utilities.decodeGrid(grid)
@@ -102,7 +102,7 @@ var game = (function(){
     window.history.pushState(
       {}, 
       '', 
-      (new URL(window.location.href).pathname) + `?size=${document.getElementById("size").value}&view=${document.querySelector("input[name='view']:checked").value}&grid=${Utilities.encodeGrid(mover.maze.grid, mover.maze.EXIT_POSITION)}`);
+      (new URL(window.location.href).pathname) + `?size=${options.size.width}&view=${options.view.name}&grid=${Utilities.encodeGrid(mover.maze.grid, mover.maze.EXIT_POSITION)}`);
   }
   function setupViewProperties(_view) {
     cellSideLength = Math.floor(mazeScale/(mover.maze.grid[0].length * 4));
@@ -128,7 +128,8 @@ var game = (function(){
         cellEl.style.height = cellSideLength + "px";
         gridPositionChecker.setPosition(x,y);
         var cellValue = mover.maze.getValueAt(gridPositionChecker);
-        cellEl.setAttribute("data-position", `${x}-${y}`);
+        cellEl.setAttribute("data-position-x", x);
+        cellEl.setAttribute("data-position-y", y);
         if (Cell.CELL(cellValue).is(Cell.WALL)) {
           cellEl.classList.add("wall");
         } else if (Cell.CELL(cellValue).is(Cell.EXIT)) {
@@ -154,16 +155,16 @@ var game = (function(){
         if (!animating) {
           if (e.key === "ArrowUp" && mover.canMove(Direction.UP)) {
             mover.position.onwardMove(Direction.UP);
-            animateMove(moverEl, Direction.UP);
+            animateMove(mover.position, Direction.UP);
           } else if (e.key === "ArrowRight" && mover.canMove(Direction.RIGHT)) {
             mover.position.onwardMove(Direction.RIGHT);
-            animateMove(moverEl, Direction.RIGHT);
+            animateMove(mover.position, Direction.RIGHT);
           } else if (e.key === "ArrowDown" && mover.canMove(Direction.DOWN)) {
             mover.position.onwardMove(Direction.DOWN);
-            animateMove(moverEl, Direction.DOWN);
+            animateMove(mover.position, Direction.DOWN);
           } else if (e.key === "ArrowLeft" && mover.canMove(Direction.LEFT)) {
             mover.position.onwardMove(Direction.LEFT);
-            animateMove(moverEl, Direction.LEFT);
+            animateMove(mover.position, Direction.LEFT);
           }
         }
       }
@@ -178,6 +179,7 @@ var game = (function(){
         moverEl.classList.add("robot");
         document.getElementById("human").removeAttribute("checked");
         document.getElementById("robot").checked = "checked";
+        hideMaze();
         findExitPathAndAnimate()
       }
     );
@@ -238,7 +240,7 @@ var game = (function(){
         moverEl.classList.toggle("human");
         if (View.getVIEW(e.target.value).is(View.ROBOT)) {
           hideMaze();
-          updateFlashlight(mover.position.x,mover.position.y);
+          updateFlashlight(null, mover.position);
         } else { //HUMAN
           showMaze();
         }
@@ -250,7 +252,7 @@ var game = (function(){
     document.getElementById("animateExitPath").removeAttribute("disabled");
     if (view.is(View.ROBOT)) {
       hideMaze();
-      updateFlashlight(mover.position.x, mover.position.y);
+      updateFlashlight(null, mover.position);
     }
     gridIsBuilt = true;
   }
@@ -281,11 +283,6 @@ var game = (function(){
     );
   }
 
-  function addValueToPositionProperty(el, positionProperty, value) {
-    var oldValue = Number.parseInt(el.style[positionProperty]);
-    var valueString = ((oldValue ? oldValue : 0) + value) + "px";
-    el.style[positionProperty] = valueString;
-  }
   function hideMaze(){
     Array.from(document.querySelectorAll("td:not(.exit)")).forEach(
       td => {
@@ -304,85 +301,119 @@ var game = (function(){
       }
     );
   }
-  function shadowLight(litCells) {
-    Array.from(litCells).forEach(
-      td => {
-        td.classList.remove("lit"); 
-        td.classList.add("previouslyLit");
-      }
-    );
-  }
-  function updateFlashlight(x,y) {
-    window.setTimeout(shadowLight, 500, document.querySelectorAll("td.lit:not(.exit)"));
-    document.querySelector(`td[data-position="${mover.maze.EXIT_POSITION.x}-${mover.maze.EXIT_POSITION.y}"]`).classList.remove("unlit");
-    document.querySelector(`td[data-position="${x}-${y}"]`).classList.remove("unlit");
-    document.querySelector(`td[data-position="${x + 1}-${y}"]`).classList.remove("unlit");
-    document.querySelector(`td[data-position="${x - 1}-${y}"]`).classList.remove("unlit");
-    document.querySelector(`td[data-position="${x}-${y + 1}"]`).classList.remove("unlit");
-    document.querySelector(`td[data-position="${x}-${y - 1}"]`).classList.remove("unlit");
 
-    document.querySelector(`td[data-position="${x}-${y}"]`).classList.add("lit");
-    document.querySelector(`td[data-position="${x + 1}-${y}"]`).classList.add("lit");
-    document.querySelector(`td[data-position="${x - 1}-${y}"]`).classList.add("lit");
-    document.querySelector(`td[data-position="${x}-${y + 1}"]`).classList.add("lit");
-    document.querySelector(`td[data-position="${x}-${y - 1}"]`).classList.add("lit");
+  function updateFlashlight(previousPosition, currentPosition) {
+    if (previousPosition) {
+      mover.maze.runOnLocalGrid(
+        (testPosition, currentPosition) =>
+          !testPosition.occupiesSameSpace(currentPosition) && 
+          !testPosition.occupiesSameSpace(mover.maze.EXIT_POSITION) && 
+          document.querySelector(
+            `td[data-position-x="${testPosition.x}"][data-position-y="${testPosition.y}"]`
+          ).classList.add("previouslyLit")
+        ,
+        previousPosition,
+        currentPosition
+      );
+    }
+    
+    mover.maze.runOnLocalGrid(
+      (position) => 
+        document.querySelector(
+          `td[data-position-x="${position.x}"][data-position-y="${position.y}"]`
+        ).classList.remove("unlit", "previouslyLit")
+      ,
+      currentPosition
+    );
   }
 
   function stopRobot() {
-    window.clearInterval(animateRobotInterval);
     animating = false;
+  }
+  function isRobotStopped() {
+    return !animating;
   }
   function playRobot() {
 
   }
 
-  function animateMove(el, DIRECTION) {
-    var property = "top";
-    var value = 0;
-    if (Direction.is(DIRECTION, Direction.RIGHT)) {
-      property = "left";
-      value = cellSideLength;
-    } else if (Direction.is(DIRECTION, Direction.DOWN)) {
-      property = "top";
-      value = cellSideLength;
-    } else if (Direction.is(DIRECTION, Direction.LEFT)) {
-      property = "left";
-      value = -cellSideLength;
-    } else if (Direction.is(DIRECTION, Direction.UP)) {
-      property = "top";
-      value = -cellSideLength;
-    }
-    addValueToPositionProperty(el, property, value);
+  function reachedExit() {
+    document.querySelector("#grid").classList.add("onExit");
+  }
+  function leftExit() {
+    document.querySelector("#grid").classList.remove("onExit");
+  }
+  function whenFinishedAnimating(el) {
+    return new Promise(
+    (resolve, rejected) => 
+      el.addEventListener(
+        "transitionend",
+        (e) => resolve(),
+        {once : true}
+      )
+    );
+  }
+
+
+  function animateMove(position, DIRECTION) {
+    var stylePositionProperty = "",
+      stylePositionValue = 0;
+
     if (window.game.view.is(View.ROBOT)) {
-      updateFlashlight(mover.position.x, mover.position.y);
+      updateFlashlight(mover.position.peek(Direction.opposite(DIRECTION)), mover.position);
     }
-    if (mover.position.x === mover.maze.EXIT_POSITION.x && mover.position.y === mover.maze.EXIT_POSITION.y) {
-      document.querySelector("#grid").classList.add("onExit");
-    } else if (document.querySelector("#grid.onExit")) {
-      document.querySelector("#grid.onExit").classList.remove("onExit");
+    whenFinishedAnimating(moverEl).then(
+      () => {
+        if (window.game.mover.maze.isExit(position)) {
+          reachedExit();
+        } else if (window.game.mover.maze.isExit(position.peek(Direction.opposite(DIRECTION)))) {
+          leftExit();
+        }  
+      }
+    );
+
+    switch(true) {
+      case Direction.is(DIRECTION, Direction.RIGHT):
+        stylePositionValue = cellSideLength;
+      case Direction.is(DIRECTION, Direction.LEFT):
+        stylePositionValue = stylePositionValue || -cellSideLength;
+        stylePositionProperty = "left";  
+        break;
+      case Direction.is(DIRECTION, Direction.DOWN):
+        stylePositionValue = cellSideLength;
+      case Direction.is(DIRECTION, Direction.UP):
+        stylePositionValue = stylePositionValue || -cellSideLength;
+        stylePositionProperty = "top";
     }
+
+    moverEl.style[stylePositionProperty] = 
+      ((Number.parseInt(moverEl.style[stylePositionProperty]) || 0) + stylePositionValue) + "px";
+  }
+
+  function tryToAnimateRobot(moveCount) {
+    try {
+      let move = mover.exitPosition.moves[moveCount];
+      if (moveCount < mover.exitPosition.moves.length) {
+        mover.position.onwardMove(move);
+        moverEl.addEventListener(
+          "transitionend",
+          () => {!isRobotStopped() && tryToAnimateRobot(moveCount+1)},
+          {once: true}
+        );
+        animateMove(mover.position, move);
+      } else {
+        stopRobot();
+      }
+    } catch (e) {
+      stopRobot();
+      console.error(e);
+    } 
   }
 
   function animateRobot() {
-    var moveCount = 0;
     hideMaze();
-    updateFlashlight(mover.position.x, mover.position.y);
-    
-    animateRobotInterval = window.setInterval(() => {
-      try {
-        let move = mover.exitPosition.moves[moveCount];
-        if (moveCount < mover.exitPosition.moves.length) {
-          mover.position.onwardMove(move);
-          animateMove(moverEl, move);
-        } else {
-          stopRobot();
-        }
-        moveCount += 1;
-      } catch (e) {
-        stopRobot();
-        console.error(e);
-      }
-    }, 300);
+    updateFlashlight(null, mover.position);
+    tryToAnimateRobot(0);
   }
 
   return {

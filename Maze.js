@@ -47,7 +47,7 @@ class Maze {
     }
   }
   isExit(position) {
-    return this.getValueAt(position).value === Cell.EXIT.value;
+    return Cell.CELL(this.getValueAt(position)).is(Cell.EXIT);
   }
 
   containsPosition(position) {
@@ -57,6 +57,14 @@ class Maze {
       position.y >= 0 &&
       position.y <= this.indexOfLastRow
     );
+  }
+
+  runOnLocalGrid(fn, position, params = []) {
+    fn(position, params);
+    fn(position.peek(Direction.UP), params);
+    fn(position.peek(Direction.RIGHT), params);
+    fn(position.peek(Direction.DOWN), params);
+    fn(position.peek(Direction.LEFT), params);
   }
   
   getDirectionOfPerimeterFrom(position) {
@@ -70,13 +78,7 @@ class Maze {
       return Direction.LEFT;
     }
   }
-  //TODO
-  getDirectionTowardExit(position) {
-    var angleToExit = position.getAngleTo(this.EXIT_POSITION);
-    if (angleToExit >= 90) {
-      
-    }
-  }
+
   toString() {
     return this.grid.reduce(
       (outputString, val, i, arr) =>

@@ -12,7 +12,7 @@ class Mover {
   }
 
   whereIsTouchingExit() {
-    return Direction.ALL().filter(
+    return Direction.ALL().find(
       DIRECTION => 
         Cell.CELL(
           this.maze.getValueAt(this.position.peek(DIRECTION))
@@ -94,24 +94,31 @@ class Mover {
   }
 
   findExitPath() {
-    var visited = {},
+    var visited = Object.create(Object.prototype, { [this.maze.START_POSITION] : {"enumerable" : true}}),
       moveTowardExit = (DIRECTION) => {
         this.position.onwardMove(DIRECTION);
-        Object.defineProperty(visited, this.position.toString(), {}); 
+        if (visited.hasOwnProperty(this.position)) {
+          throw new Error("Robot attempted to visit previously visited cell.");
+        }
+        Object.defineProperty(visited, this.position.toString(), {"configurable" : true, "enumerable" : true}); 
       },
       isValidPosition = (position, visited) => {
         return !visited.hasOwnProperty(position);
       },
       canMove = (DIRECTION, visited) => {
         return this.canMove(DIRECTION) && isValidPosition(this.position.peek(DIRECTION), visited);
+      },
+      undoLastMove = () => {
+        delete visited[this.position.toString()];
+        this.position.undoLastMove();
       }
     var findExitRecursively = (DIRECTIONS = Direction.ALL()) => {
       if (DIRECTIONS.length > 0) {
         let DIRECTION = this.chooseNextDirection(DIRECTIONS);
         if (canMove(DIRECTION, visited)) {
-          let exitDIRECTION = this.whereIsTouchingExit();
-          if (exitDIRECTION.length) {
-            moveTowardExit(exitDIRECTION[0]);
+          let exitDIRECTION;
+          if (exitDIRECTION = this.whereIsTouchingExit()) {
+            moveTowardExit(exitDIRECTION);
             return true;
           }
           moveTowardExit(DIRECTION);
@@ -122,7 +129,7 @@ class Mover {
             if (this.hasFoundExit()) {
               return true;
             } else {
-              this.position.undoLastMove();
+              undoLastMove();
             }
           }
         }

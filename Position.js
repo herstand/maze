@@ -28,12 +28,8 @@ class Position {
     this.position[1] = y;
     return this;
   }
-  opposite(DIRECTION) {
-    DIRECTION.value.forEach((n,i) => DIRECTION.value[i] = (DIRECTION.value[i] * -1));
-    return DIRECTION;
-  }
   undoLastMove() {
-    this.move(this.opposite(this.moves.pop()));
+    this.move(Direction.opposite(this.moves.pop()));
     return this;
   }
   onwardMove(DIRECTION) {
@@ -58,6 +54,9 @@ class Position {
     this.x = positionToImitate.x;
     this.y = positionToImitate.y;
     this.moves = Utilities.NewArrayInstance(positionToImitate.moves);
+  }
+  occupiesSameSpace(position) {
+    return this.x === position.x && this.y === position.y;
   }
   toString() {
     return `[${this.x},${this.y}]`;

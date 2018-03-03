@@ -64,6 +64,5 @@ function generateMaze(width, height, complexity = .75, density = .75) {
     );
   possibleExits = possibleExits[Math.ceil((Math.random() * (possibleExits.length - 1)))];
   grid[possibleExits[0]][possibleExits[1]] = 2;
-//   grid[Math.ceil(Math.random()*(grid.length-3)+1)][Math.ceil(Math.random()*(grid.length-3) + 1)] = 2;
   return grid;
 }

@@ -33,21 +33,30 @@ class Direction {
   static get UP() {
      return Direction.createDIRECTION("up", [0,-1]);
   }
+  static opposite(DIRECTION) {
+    return Direction.getDIRECTIONByValue(
+      DIRECTION.value.map((n) => n * -1)
+    );
+  }
   static is(DIRECTION1, DIRECTION2) {
     return DIRECTION1.name === DIRECTION2.name;
   }
-  static getDIRECTION(direction) {
-    var DIRECTIONS = Direction.ALL;
-    return DIRECTIONS[DIRECTIONS.indexOf(direction)];
+  static getDIRECTION(directionName) {
+    var DIRECTIONS = Direction.ALL();
+    return DIRECTIONS[DIRECTIONS.findIndex(DIRECTION => DIRECTION.name === directionName)];
+  }
+  static getDIRECTIONByValue(directionValue) {
+    var DIRECTIONS = Direction.ALL();
+    return DIRECTIONS[DIRECTIONS.findIndex(DIRECTION => DIRECTION.value.length === directionValue.length && DIRECTION.value.every((v,i)=> v === directionValue[i]))];
   }
   static ALL() {
     return Object.values(Object.getOwnPropertyDescriptors(Direction)).filter(
-      (fn) => (
+      fn => (
         typeof fn.get === "function" &&
         fn.name !== "ALL"
       )
     ).map(
-      (n, i, arr) => n = n.get()
+      DIRECTION => DIRECTION.get()
     );
   }
 }
