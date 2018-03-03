@@ -154,12 +154,14 @@ var game = (function(){
       "keydown", (e) => {
         if (!animating) {
           if (e.key === "ArrowUp" && mover.canMove(Direction.UP)) {
+            e.preventDefault();
             mover.position.onwardMove(Direction.UP);
             animateMove(mover.position, Direction.UP);
           } else if (e.key === "ArrowRight" && mover.canMove(Direction.RIGHT)) {
             mover.position.onwardMove(Direction.RIGHT);
             animateMove(mover.position, Direction.RIGHT);
           } else if (e.key === "ArrowDown" && mover.canMove(Direction.DOWN)) {
+            e.preventDefault();
             mover.position.onwardMove(Direction.DOWN);
             animateMove(mover.position, Direction.DOWN);
           } else if (e.key === "ArrowLeft" && mover.canMove(Direction.LEFT)) {
